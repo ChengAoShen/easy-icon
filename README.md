@@ -1,9 +1,9 @@
 # Easy Icon
 
-![Private Repo](https://img.shields.io/badge/Private-Controllable-1f6f5f)
+![Private & Controllable](https://img.shields.io/badge/Private-Controllable-1f6f5f)
 ![Stable Links](https://img.shields.io/badge/Stable-CDN%20Links-0f766e)
 ![GitHub Native](https://img.shields.io/badge/GitHub-Native-24292f?logo=github&logoColor=white)
-![Web UI](https://img.shields.io/badge/Web-Frontend-2563eb)
+![Web Frontend](https://img.shields.io/badge/Web-Frontend-2563eb)
 
 [中文](./README.zh-CN.md)
 
@@ -11,69 +11,54 @@
 
 ## ✨ What Is Easy Icon
 
-Easy Icon is a fully GitHub-based, fast private icon management repository.
-
-It helps you build your own stable icon link library and keep everything inside GitHub, with no extra infrastructure setup.
-
----
-
-## 🚀 Highlights
-
-- **Private by default**: your icon assets stay in your own GitHub repository.
-- **Stable links**: use predictable and versionable CDN URLs for long-term usage.
-- **GitHub-native workflow + Web frontend**: manage and use icons quickly without extra platform configuration.
+Easy Icon is a fully GitHub-based icon hosting and delivery solution.  
+You can manage icon assets in your own repository and get stable, shareable links through GitHub Pages, without extra servers or object storage.
 
 ---
 
-## 🧭 How To Use
+## 🚀 Core Capabilities
 
-### 1) Use the Web Page
-
-- Search icons
-- Filter by category
-- Copy icon links directly
-- Build `batch_json` from URL lists
-- Upload local SVG files directly (multi-select supported)
-- Mix URL sources and local files in one import batch
-
-### 2) Import via GitHub Actions
-
-- Open repository **Actions**
-- Run **Import Icon** workflow
-- Paste your `batch_json`
-- Start import
+- **Private and controllable**: Icon assets stay in your own GitHub repository.
+- **Stable links**: Provides long-term, versionable CDN URLs.
+- **Simple deployment**: Uses GitHub end-to-end (Repo + Actions + Pages), ready out of the box.
 
 ---
 
-## 🍴 Use After Fork
+## 🧭 Quick Start
 
-After forking this repository, complete this one-time setup in your fork:
+### 1) Deploy the Site
 
-1. Go to `Settings -> Pages`
-2. Set `Build and deployment -> Source` to `GitHub Actions`
-3. Go to `Settings -> Actions -> General`
-4. Set `Workflow permissions` to `Read and write permissions`
-5. Open `Actions`, rerun `Deploy Pages` once
+1. **Fork** this repository to your GitHub account or organization.
+2. Go to `Settings -> Pages`, then set `Build and deployment -> Source` to `GitHub Actions`.
+3. Go to `Settings -> Actions -> General`, then set `Workflow permissions` to `Read and write permissions`.
+4. Open the `Actions` tab and run the `Deploy Pages` workflow.
 
-Then your site URL will be:
+After setup, your site URL is usually:
 
-- `https://<your-user-or-org>.github.io/<your-fork-repo>/`
+- `https://<user-or-org>.github.io/<repo>/`
 
-Notes:
-- If `Deploy Pages` shows `Get Pages site failed` or `Resource not accessible by integration`, it usually means Pages is not enabled yet or workflow write permission is not granted.
-- If your account or organization uses a custom domain, the final URL may be that domain instead of `github.io`.
+### 2) Upload Images
+
+1. Generate a batch upload config (JSON) from a URL list or local SVG files.
+2. Run the corresponding upload workflow in GitHub `Actions` to complete the commit.
+
+### 3) Use Images
+
+1. Open the web homepage.
+2. Click and copy the link directly.
 
 ---
 
-## 🔗 Link Usage
+## ❓ FAQ
 
-- Stable version (recommended):
-  - `https://cdn.jsdelivr.net/gh/<user>/<repo>@v1.0.0/icons/<name>.svg`
-- Latest main:
-  - `https://cdn.jsdelivr.net/gh/<user>/<repo>@main/icons/<name>.svg`
+- **`Get Pages site failed` / `Resource not accessible by integration`**
+  - This usually means Pages is not enabled, or workflow write permission is not enabled.
+  - Recheck steps 2 and 3 under “Quick Start -> Deploy the Site”.
+- **The URL is not `github.io`**
+  - If your account or organization uses a custom domain, the final URL will be that domain.
 
 ---
 
 ## 📮 Contact
 
-- `chengao_shen@ieee.org`
+- Email: `contact@catvinci.com`
