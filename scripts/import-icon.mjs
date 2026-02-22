@@ -4,6 +4,10 @@ import path from "node:path";
 const namePattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const maxBatchCount = 100;
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function readRequiredEnv(name) {
   const value = process.env[name]?.trim();
   if (!value) {
@@ -90,33 +94,72 @@ function decodeBase64Svg(base64Text) {
 }
 
 async function fetchSvg(url, timeoutMs) {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    if (!response.ok) {
-      throw new Error(`Download failed with status ${response.status}`);
+  const maxAttempts = 3;
+  const acceptedTypes = [
+    "image/svg+xml",
+    "text/plain",
+    "application/octet-stream",
+    "application/xml",
+    "text/xml"
+  ];
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        signal: controller.signal,
+        headers: {
+          Accept: "image/svg+xml, application/xml;q=0.9, text/xml;q=0.9, */*;q=0.1",
+          "User-Agent": "easy-icon-importer/1.0"
+        }
+      });
+
+      if (!response.ok) {
+        const retryableStatus = response.status === 408 || response.status === 429 || response.status >= 500;
+        if (retryableStatus && attempt < maxAttempts) {
+          await sleep(300 * 2 ** (attempt - 1));
+          continue;
+        }
+        throw new Error(`Download failed with status ${response.status}`);
+      }
+
+      const type = (response.headers.get("content-type") || "").toLowerCase();
+
+      const length = Number(response.headers.get("content-length") || "0");
+      const maxBytes = Number(process.env.MAX_SVG_BYTES || "200000");
+      if (length > 0 && length > maxBytes) {
+        throw new Error(`File too large: ${length} bytes`);
+      }
+
+      const text = await response.text();
+      const hasAcceptableType = !type || acceptedTypes.some((v) => type.includes(v));
+      if (!hasAcceptableType && type.includes("text/html")) {
+        throw new Error(`Unsupported content-type: ${type}`);
+      }
+      ensureSvgText(text);
+      ensureSvgSize(text);
+      return text;
+    } catch (error) {
+      const isAbort = error?.name === "AbortError";
+      const canRetry = (isAbort || error instanceof TypeError) && attempt < maxAttempts;
+      if (canRetry) {
+        await sleep(300 * 2 ** (attempt - 1));
+        continue;
+      }
+
+      if (isAbort) {
+        throw new Error(`Download timeout after ${timeoutMs}ms`);
+      }
+
+      throw error;
+    } finally {
+      clearTimeout(timer);
     }
-
-    const type = response.headers.get("content-type") || "";
-    if (!(type.includes("image/svg+xml") || type.includes("text/plain") || type.includes("application/octet-stream"))) {
-      throw new Error(`Unsupported content-type: ${type}`);
-    }
-
-    const length = Number(response.headers.get("content-length") || "0");
-    const maxBytes = Number(process.env.MAX_SVG_BYTES || "200000");
-    if (length > 0 && length > maxBytes) {
-      throw new Error(`File too large: ${length} bytes`);
-    }
-
-    const text = await response.text();
-    ensureSvgText(text);
-    ensureSvgSize(text);
-
-    return text;
-  } finally {
-    clearTimeout(timer);
   }
+
+  throw new Error("Download failed after retries");
 }
 
 async function loadIndex() {
