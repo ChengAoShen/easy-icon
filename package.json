@@ -1,0 +1,10 @@
+{
+  "name": "icon-link-repo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Personal icon repository with CDN links and import workflow",
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate-icons.mjs"
+  }
+}

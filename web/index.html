@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Icon Link Gallery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="bg-glow bg-glow-a"></div>
+    <div class="bg-glow bg-glow-b"></div>
+
+    <main class="page">
+      <header class="hero">
+        <div class="hero-top">
+          <p class="badge">GitHub Pages</p>
+          <div class="lang-switch" aria-label="Language switch">
+            <button id="langZhBtn" class="lang-btn is-active" type="button">中</button>
+            <button id="langEnBtn" class="lang-btn" type="button">EN</button>
+          </div>
+        </div>
+        <h1 data-i18n="heroTitle">My Icon Link Gallery</h1>
+        <p class="hero-sub" data-i18n="heroSub">搜索、按分类过滤，点击卡片即可复制最新链接。</p>
+      </header>
+
+      <nav class="view-switch" aria-label="Page views">
+        <button class="view-tab is-active" type="button" data-view="gallery" data-i18n="tabGallery">Icon 展览</button>
+        <button class="view-tab" type="button" data-view="batch" data-i18n="tabBatch">Batch 生成器</button>
+      </nav>
+
+      <section id="galleryView" class="view-panel is-active" aria-label="Icon gallery">
+        <section class="controls" aria-label="Search and filter">
+          <label class="field">
+            <span data-i18n="searchLabel">关键词搜索</span>
+            <input id="searchInput" type="search" placeholder="名称 / 标签 / ID" data-i18n-placeholder="searchPlaceholder" />
+          </label>
+
+          <label class="field">
+            <span data-i18n="categoryFilterLabel">分类筛选</span>
+            <select id="categorySelect">
+              <option value="all" data-i18n="allCategories">全部分类</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="result-head">
+          <p id="resultMeta">加载中...</p>
+        </section>
+
+        <section id="iconGrid" class="icon-grid" aria-live="polite"></section>
+      </section>
+
+      <section id="batchView" class="view-panel" aria-label="Batch import builder">
+        <section class="batch-panel">
+          <div class="batch-head">
+            <h2 data-i18n="batchTitle">批量导入配置器</h2>
+            <p data-i18n="batchSub">每行填写一个来源（URL 或本地 SVG）、分类和 tags，最后生成 batch_json。</p>
+          </div>
+
+          <div class="row-list-wrap">
+            <table class="row-list" aria-label="Batch rows">
+              <thead>
+                <tr>
+                  <th data-i18n="rowSource">SVG / URL</th>
+                  <th data-i18n="rowCategory">Category</th>
+                  <th data-i18n="rowTags">Tags</th>
+                  <th data-i18n="rowName">Name (optional)</th>
+                  <th data-i18n="rowAction">Action</th>
+                </tr>
+              </thead>
+              <tbody id="batchRowBody"></tbody>
+            </table>
+          </div>
+
+          <datalist id="batchCategoryList"></datalist>
+
+          <div class="batch-actions">
+            <button id="addRowBtn" class="ghost-btn" type="button" data-i18n="addRowBtn">新增一行</button>
+            <button id="generateBatchBtn" class="ghost-btn" type="button" data-i18n="generateJsonBtn">生成 JSON</button>
+            <button id="copyBatchBtn" class="copy-btn" type="button" data-i18n="copyBatchBtn">复制 batch_json</button>
+          </div>
+
+          <p id="batchMeta" class="batch-meta" data-i18n="batchMetaIdle">等待输入...</p>
+
+        <div class="batch-preview-wrap">
+          <table class="batch-preview" aria-label="Batch preview">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th data-i18n="colName">name</th>
+                <th data-i18n="colSourceUrl">source_url</th>
+              </tr>
+            </thead>
+            <tbody id="batchPreviewBody"></tbody>
+          </table>
+        </div>
+
+          <label class="field">
+            <span data-i18n="batchResultLabel">生成结果（粘贴到 Import Icon 的 batch_json）</span>
+            <textarea id="batchJsonOutput" class="batch-output" readonly></textarea>
+          </label>
+        </section>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <template id="iconCardTemplate">
+      <article class="icon-card">
+        <div class="icon-preview-wrap">
+          <img class="icon-preview" alt="" loading="lazy" decoding="async" />
+        </div>
+        <div class="icon-meta">
+          <p class="icon-name"></p>
+          <p class="icon-id"></p>
+          <div class="chip-row"></div>
+        </div>
+        <button class="copy-btn" type="button">复制链接</button>
+      </article>
+    </template>
+
+    <template id="batchRowTemplate">
+      <tr>
+        <td>
+          <div class="source-cell">
+            <input class="row-url" type="url" placeholder="https://example.com/icon.svg" />
+            <input class="row-file" type="file" accept=".svg,image/svg+xml" />
+          </div>
+        </td>
+        <td>
+          <input class="row-category" type="text" list="batchCategoryList" placeholder="navigation" />
+        </td>
+        <td>
+          <input class="row-tags" type="text" placeholder="arrow,left,back" />
+        </td>
+        <td>
+          <input class="row-name" type="text" placeholder="custom-name (optional)" />
+        </td>
+        <td>
+          <button class="row-remove ghost-btn" type="button">移除</button>
+        </td>
+      </tr>
+    </template>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

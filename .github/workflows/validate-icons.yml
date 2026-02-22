@@ -1,0 +1,31 @@
+name: Validate Icons
+
+on:
+  push:
+    paths:
+      - "icons/*.svg"
+      - "index.json"
+      - "scripts/validate-icons.mjs"
+      - ".github/workflows/validate-icons.yml"
+  pull_request:
+    paths:
+      - "icons/*.svg"
+      - "index.json"
+      - "scripts/validate-icons.mjs"
+      - ".github/workflows/validate-icons.yml"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate icons
+        run: node scripts/validate-icons.mjs
