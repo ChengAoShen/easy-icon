@@ -1,1 +1,13 @@
-[]
+[
+  {
+    "id": "logo/fastapi",
+    "name": "fastapi",
+    "category": "logo",
+    "tags": [
+      "web"
+    ],
+    "url": "https://cdn.jsdelivr.net/gh/ChengAoShen/easy-icon@main/icons/fastapi.svg",
+    "deprecated": false,
+    "updatedAt": "2026-02-22T23:33:12.039Z"
+  }
+]
