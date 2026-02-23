@@ -55,12 +55,12 @@ const messages = {
     colSourceUrl: "source_url",
     emptyResult: "暂无匹配图标。你可以先通过 Import Icon 工作流导入 SVG。",
     copyLinkBtn: "复制链接",
-    copySvgBtn: "复制源码",
+    downloadSvgBtn: "下载 SVG",
     copied: "链接已复制",
-    svgCopied: "SVG 源码已复制",
+    svgDownloaded: "SVG 已开始下载",
     copyFailed: "复制失败，请手动复制",
-    svgFetchFailed: "复制源码失败，可能受跨域限制",
-    svgInvalid: "复制源码失败，内容不是有效 SVG",
+    svgFetchFailed: "下载 SVG 失败，可能受跨域限制",
+    svgInvalid: "下载 SVG 失败，内容不是有效 SVG",
     categoryRequired: "第 {index} 行 category 不能为空，且需为 kebab-case。",
     inputSourceFirst: "请至少填写一行有效数据（URL 或本地 SVG）。",
     invalidUrl: "URL 无效",
@@ -112,12 +112,12 @@ const messages = {
     colSourceUrl: "source_url",
     emptyResult: "No matching icons. Import SVGs first via the Import Icon workflow.",
     copyLinkBtn: "Copy link",
-    copySvgBtn: "Copy SVG",
+    downloadSvgBtn: "Download SVG",
     copied: "Link copied",
-    svgCopied: "SVG source copied",
+    svgDownloaded: "SVG download started",
     copyFailed: "Copy failed, please copy manually",
-    svgFetchFailed: "Failed to copy SVG source (possibly blocked by CORS)",
-    svgInvalid: "Failed to copy SVG source (invalid SVG content)",
+    svgFetchFailed: "Failed to download SVG (possibly blocked by CORS)",
+    svgInvalid: "Failed to download SVG (invalid SVG content)",
     categoryRequired: "Line {index} category is required and must be kebab-case.",
     inputSourceFirst: "Please provide at least one valid row (URL or local SVG).",
     invalidUrl: "Invalid URL",
@@ -517,6 +517,19 @@ async function fetchSvgText(url) {
   }
 }
 
+function downloadSvg(svgText, fileName) {
+  const blob = new Blob([svgText], { type: "image/svg+xml;charset=utf-8" });
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = objectUrl;
+  anchor.download = fileName;
+  anchor.style.display = "none";
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
+}
+
 function render(list) {
   iconGrid.innerHTML = "";
 
@@ -537,7 +550,7 @@ function render(list) {
     const iconId = node.querySelector(".icon-id");
     const chipRow = node.querySelector(".chip-row");
     const copyLinkBtn = node.querySelector(".copy-link-btn");
-    const copySvgBtn = node.querySelector(".copy-svg-btn");
+    const downloadSvgBtn = node.querySelector(".download-svg-btn");
 
     card.style.animationDelay = `${Math.min(i * 18, 180)}ms`;
     preview.src = icon.url;
@@ -555,18 +568,18 @@ function render(list) {
 
     const targetLink = icon.url;
     copyLinkBtn.textContent = t("copyLinkBtn");
-    copySvgBtn.textContent = t("copySvgBtn");
+    downloadSvgBtn.textContent = t("downloadSvgBtn");
 
     copyLinkBtn.addEventListener("click", async () => {
       const ok = await copyText(targetLink);
       showToast(ok ? t("copied") : t("copyFailed"));
     });
 
-    copySvgBtn.addEventListener("click", async () => {
+    downloadSvgBtn.addEventListener("click", async () => {
       try {
         const svgText = await fetchSvgText(targetLink);
-        const ok = await copyText(svgText);
-        showToast(ok ? t("svgCopied") : t("copyFailed"));
+        downloadSvg(svgText, `${icon.name}.svg`);
+        showToast(t("svgDownloaded"));
       } catch (error) {
         const key = error instanceof Error && error.message === "invalid-svg" ? "svgInvalid" : "svgFetchFailed";
         showToast(t(key));
