@@ -450,6 +450,25 @@ select:focus,
   transform: translateY(1px);
 }
 
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.card-actions .copy-btn {
+  flex: 1;
+}
+
+.copy-btn.copy-btn-secondary {
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--text);
+  border-color: var(--line);
+}
+
+.copy-btn.copy-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.96);
+}
+
 .empty {
   background: rgba(255, 255, 255, 0.76);
   border: 1px dashed var(--line);
